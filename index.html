@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Marks</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 8px;
+            background: url('https://picsum.photos/1920/1080') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            position: relative;
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+        }
+
+        h1 {
+            margin-top: 24px;
+            font-size: 21px;
+        }
+
+        h2 {
+            margin-top: 16px;
+            font-size: 12px;
+        }
+
+        h1, h2, p {
+            text-align: center;
+        }
+        p {
+            margin-top: 18px;
+            font-size: 11px;
+        }
+
+        #startRecording, #exportCsv {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            margin-left: 10px;
+            margin-right: 10px;
+            border-collapse: collapse;
+            z-index: 1;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Voice to Text Marks Input</h1>
+        <h2>Powered by Sourabh Suneja</h2>
+        <p>Speak up the marks in the format: "Name Marks" (e.g., "Aman 18", "Krishna 16") and I'll type out in the table</p>
+    </div>
+
+    <button id="startRecording">Start Recording</button>
+    
+    <table id="marksTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Marks</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <button id="exportCsv">Export to CSV</button>
+
+    <script>
+        const startRecordingButton = document.getElementById('startRecording');
+        const tableBody = document.getElementById('tableBody');
+        const exportCsvButton = document.getElementById('exportCsv');
+
+        const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+        recognition.continuous = true;
+
+        startRecordingButton.addEventListener('click', () => {
+            recognition.start();
+        });
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            processSpeech(transcript);
+        };
+
+        function processSpeech(transcript) {
+            const inputArray = transcript.split(' ');
+
+            // Combine the spoken input into the name
+            const name = capitalizeFirstLetterEachWord(inputArray.slice(0, -1).join(' '));
+            const marks = parseInt(inputArray[inputArray.length - 1]);
+
+            if (!isNaN(marks)) {
+                updateTable(name, marks);
+            } else {
+                alert('Invalid input. Please speak in the format: "Full Name Marks" (e.g., "John Doe 18")');
+            }
+        }
+
+        function capitalizeFirstLetterEachWord(str) {
+            return str.replace(/\b\w/g, match => match.toUpperCase());
+        }
+
+        function updateTable(name, marks) {
+            const row = document.createElement('tr');
+            const nameCell = document.createElement('td');
+            const marksCell = document.createElement('td');
+            const editButtonCell = document.createElement('td');
+
+            nameCell.textContent = name;
+            marksCell.textContent = marks;
+
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.addEventListener('click', () => editEntry(row));
+
+            editButtonCell.appendChild(editButton);
+
+            row.appendChild(nameCell);
+            row.appendChild(marksCell);
+            row.appendChild(editButtonCell);
+
+            tableBody.appendChild(row);
+        }
+
+        function editEntry(row) {
+            const nameCell = row.children[0];
+            const marksCell = row.children[1];
+
+            const newName = prompt('Edit Name:', nameCell.textContent);
+            const newMarks = prompt('Edit Marks:', marksCell.textContent);
+
+            if (newName !== null && newMarks !== null) {
+                nameCell.textContent = capitalizeFirstLetterEachWord(newName);
+                marksCell.textContent = parseInt(newMarks);
+            }
+        }
+
+        exportCsvButton.addEventListener('click', () => {
+            exportToCsv('marks.csv');
+        });
+
+        function exportToCsv(filename) {
+            const csvContent = [];
+            const rows = tableBody.querySelectorAll('tr');
+
+            rows.forEach((row) => {
+                const rowData = [];
+                row.querySelectorAll('td').forEach((cell) => {
+                    rowData.push(cell.textContent);
+                });
+                csvContent.push(rowData);
+            });
+
+            const csvContentString = csvContent.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContentString], { type: 'text/csv;charset=utf-8;' });
+
+            // Create a download link
+            const link = document.createElement('a');
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('Your browser does not support the download feature. Please try using a different browser.');
+            }
+        }
+    </script>
+</body>
+</html>
