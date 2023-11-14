@@ -154,7 +154,6 @@
     <button id="autocorrectNames">Autocorrect Names</button>
     <div id="listeningText">Listening...</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/dist/string-similarity.min.js"></script>
 
     <script>
         const startRecordingButton = document.getElementById('startRecording');
@@ -183,9 +182,13 @@
         };
 
         recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            processSpeech(transcript);
-        };
+        const transcript = event.results[0][0].transcript;
+
+    // Replace "sex" with "six" in the transcript
+    const sanitizedTranscript = transcript.replace(/\bsex\b/gi, 'six');
+
+    processSpeech(sanitizedTranscript);
+};
 
         function processSpeech(transcript) {
             const inputArray = transcript.split(' ');
