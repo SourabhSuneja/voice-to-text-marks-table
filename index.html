@@ -328,24 +328,44 @@
                 .catch(error => console.error('Error fetching names CSV:', error));
         }
 
-        function fuzzyNameMatch(name1, name2, threshold) {
-            const cleanName1 = name1.replace(/\s/g, ''); // Remove whitespace from name1
-            const cleanName2 = name2.replace(/\s/g, ''); // Remove whitespace from name2
+        function calculateLevenshteinDistance(str1, str2, useMaxLen) {
+  const len1 = str1.length;
+  const len2 = str2.length;
+  const maxLength = useMaxLen ? Math.min(len1, len2) : Math.max(len1, len2);
 
-            const minLength = Math.min(cleanName1.length, cleanName2.length);
+  if (Math.abs(len1 - len2) >= 5) {
+    // If the difference between lengths is greater than or equal to 5, compare only up to the length of the shorter name
+    return calculateLevenshteinDistance(str1.slice(0, maxLength), str2.slice(0, maxLength), false);
+  }
 
-            let matchCount = 0;
+  const matrix = Array.from({ length: len1 + 1 }, () => Array(len2 + 1).fill(0));
 
-            for (let i = 0; i < minLength; i++) {
-                if (cleanName1[i].toLowerCase() === cleanName2[i].toLowerCase()) {
-                    matchCount++;
-                }
-            }
+  for (let i = 0; i <= len1; i++) {
+    for (let j = 0; j <= len2; j++) {
+      if (i === 0) {
+        matrix[i][j] = j;
+      } else if (j === 0) {
+        matrix[i][j] = i;
+      } else {
+        const cost = str1[i - 1] !== str2[j - 1] ? 1 : 0;
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j - 1] + cost
+        );
+      }
+    }
+  }
 
-            const matchPercentage = (matchCount / minLength) * 100;
+  return matrix[len1][len2];
+}
 
-            return matchPercentage > threshold; // Adjust the percentage threshold based on your requirements
-        }
+function fuzzyNameMatch(name1, name2, threshold) {
+  const editDistance = calculateLevenshteinDistance(name1, name2, true);
+  const minLen = Math.min(name1.length, name2.length);
+  const similarity = (1 - editDistance / minLen) * 100;
+  return similarity >= threshold;
+}
     </script>
 </body>
 </html>
