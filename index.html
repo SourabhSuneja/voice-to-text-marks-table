@@ -81,17 +81,17 @@
             background-color: #fff;
             color: #3498db;
             cursor: pointer;
-}
+        }
 
         #classSelector:hover {
             background-color: #3498db;
             color: #fff;
-}
+        }
 
         #classSelector:focus {
             outline: none;
             box-shadow: 0 0 5px rgba(52, 152, 219, 1);
-}
+        }
 
         table {
             width: 100%;
@@ -156,7 +156,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/dist/string-similarity.min.js"></script>
 
-<script>
+    <script>
         const startRecordingButton = document.getElementById('startRecording');
         const tableBody = document.getElementById('tableBody');
         const exportCsvButton = document.getElementById('exportCsv');
@@ -274,10 +274,11 @@
         }
 
         autocorrectNamesButton.addEventListener('click', () => {
-            autocorrectNames(classSelector.value);
+            const threshold = parseFloat(prompt('Enter the matching threshold (default is 70):')) || 70;
+            autocorrectNames(classSelector.value, threshold);
         });
 
-        function autocorrectNames(selectedClass) {
+        function autocorrectNames(selectedClass, threshold) {
             const csvPath = `${selectedClass}.csv`;
 
             fetch(csvPath)
@@ -290,7 +291,7 @@
                         const currentName = nameCell.textContent.trim();
 
                         const matchingName = csvNames.find(csvName =>
-                            fuzzyNameMatch(currentName, csvName)
+                            fuzzyNameMatch(currentName, csvName, threshold)
                         );
 
                         if (matchingName) {
@@ -301,7 +302,7 @@
                 .catch(error => console.error('Error fetching names CSV:', error));
         }
 
-        function fuzzyNameMatch(name1, name2) {
+        function fuzzyNameMatch(name1, name2, threshold) {
             const cleanName1 = name1.replace(/\s/g, ''); // Remove whitespace from name1
             const cleanName2 = name2.replace(/\s/g, ''); // Remove whitespace from name2
 
@@ -313,13 +314,12 @@
                 if (cleanName1[i].toLowerCase() === cleanName2[i].toLowerCase()) {
                     matchCount++;
                 }
-}
+            }
 
             const matchPercentage = (matchCount / minLength) * 100;
 
-            return matchPercentage > 70; // Adjust the percentage threshold based on your requirements
+            return matchPercentage > threshold; // Adjust the percentage threshold based on your requirements
         }
     </script>
 </body>
 </html>
-   
