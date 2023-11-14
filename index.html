@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Effortlessly streamline your grading process with our innovative solution. Simply voice the names and marks of students, and watch your Excel sheet come to life. Experience a faster, more efficient way to manage results.">
     <title>Voice2Text Marks Input</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
     <style>
         body {
             margin: 0;
@@ -115,6 +116,23 @@
         tr:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
+
+        #startRecording {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
@@ -136,7 +154,7 @@
         <option value="7A2">7A2</option>
     </select>
 
-    <button id="startRecording">Start Recording</button>
+    <button id="startRecording" data-feather="mic"></button>
     
     <table id="marksTable">
         <thead>
@@ -154,8 +172,10 @@
     <button id="autocorrectNames">Autocorrect Names</button>
     <div id="listeningText">Listening...</div>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script>
+        feather.replace();
+
         const startRecordingButton = document.getElementById('startRecording');
         const tableBody = document.getElementById('tableBody');
         const exportCsvButton = document.getElementById('exportCsv');
@@ -182,23 +202,20 @@
         };
 
         recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-
-    // Replace "sex" with "six" in the transcript
-    const sanitizedTranscript = transcript.replace(/\bsex\b/gi, 'six');
-
-    processSpeech(sanitizedTranscript);
-};
+            const transcript = event.results[0][0].transcript;
+            const sanitizedTranscript = transcript.replace(/\bsex\b/gi, 'six');
+            processSpeech(sanitizedTranscript);
+        };
 
         function processSpeech(transcript) {
             const inputArray = transcript.split(' ');
 
-            // Combine the spoken input into the name
             const name = capitalizeFirstLetterEachWord(inputArray.slice(0, -1).join(' '));
             const marks = parseInt(inputArray[inputArray.length - 1]);
 
             if (!isNaN(marks)) {
                 updateTable(name, marks);
+                
             } else {
                 alert('Invalid input. Please speak in the format: "Full Name Marks" (e.g., "John Doe 18")');
             }
@@ -228,6 +245,12 @@
             row.appendChild(editButtonCell);
 
             tableBody.appendChild(row);
+
+// Programmatically click the record button after each successful row entry
+    setTimeout(() => {
+        startRecordingButton.dispatchEvent(new Event('click'));
+    }, 0);
+
         }
 
         function editEntry(row) {
