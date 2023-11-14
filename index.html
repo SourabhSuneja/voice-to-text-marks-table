@@ -215,7 +215,7 @@
             const inputArray = transcript.split(' ');
 
             const name = capitalizeFirstLetterEachWord(inputArray.slice(0, -1).join(' '));
-            const marks = parseInt(inputArray[inputArray.length - 1]);
+            const marks = wordToNumber(parseInt(inputArray[inputArray.length - 1]));
 
             if (!isNaN(marks)) {
                 updateTable(name, marks);
@@ -370,6 +370,34 @@ function fuzzyNameMatch(name1, name2, threshold) {
   const similarity = (1 - editDistance / minLen) * 100;
   return similarity >= threshold;
 }
+
+function wordToNumber(word) {
+  // Check if the input is already an integer
+  const inputAsInt = parseInt(word, 10);
+  if (!isNaN(inputAsInt)) {
+    return inputAsInt;
+  }
+
+  const wordMap = {
+    one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+    eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19,
+    twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90, hundred: 100
+  };
+
+  // Check if the word is in the map
+  if (wordMap[word]) {
+    return wordMap[word];
+  }
+
+  // Handle numbers between 20 and 99 with hyphen or whitespace
+  const splitWord = word.split(/[-\s]+/);
+  if (splitWord.length === 2 && wordMap[splitWord[0]] && wordMap[splitWord[1]]) {
+    return wordMap[splitWord[0]] + wordMap[splitWord[1]];
+  }
+
+  return undefined; // Return undefined for words not in the range of one to a hundred
+}
+
     </script>
 </body>
 </html>
