@@ -49,7 +49,7 @@
             font-size: 11px;
         }
 
-        #startRecording, #exportCsv {
+        #startRecording, #exportCsv, #autocorrectNames {
             padding: 10px;
             font-size: 16px;
             background-color: #3498db;
@@ -60,6 +60,38 @@
             display: block;
             border-radius: 8px;
         }
+
+        #listeningText {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            color: #fff;
+            display: none;
+            z-index: 2;
+        }
+
+        #classSelector {
+            margin: 10px 0;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #3498db;
+            cursor: pointer;
+}
+
+        #classSelector:hover {
+            background-color: #3498db;
+            color: #fff;
+}
+
+        #classSelector:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 1);
+}
 
         table {
             width: 100%;
@@ -92,6 +124,16 @@
         <p>Speak up the marks in the format: "Name Marks" (e.g., "Aman 18", "Krishna 16") and I'll type out in the table</p>
     </div>
 
+    <label for="classSelector"><strong>Select Class:</strong></label>
+    <select id="classSelector">
+        <option value="5A1">5A1</option>
+        <option value="5A2">5A2</option>
+        <option value="5A3">5A3</option>
+        <option value="6A1">6A1</option>
+        <option value="6A2">6A2</option>
+        <option value="6A3">6A3</option>
+    </select>
+
     <button id="startRecording">Start Recording</button>
     
     <table id="marksTable">
@@ -102,22 +144,46 @@
                 <th>Edit</th>
             </tr>
         </thead>
-        <tbody id="tableBody"></tbody>
+        <tbody id="tableBody">
+            <tr>
+                <th>Aman Chachariya</th>
+                <th>56</th>
+                <th>Edit</th>
+            </tr>
+        </tbody>
     </table>
 
     <button id="exportCsv">Export to CSV</button>
+    <button id="autocorrectNames">Autocorrect Names</button>
+    <div id="listeningText">Listening...</div>
 
-    <script>
+    <script src="https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/dist/string-similarity.min.js"></script>
+
+<script>
         const startRecordingButton = document.getElementById('startRecording');
         const tableBody = document.getElementById('tableBody');
         const exportCsvButton = document.getElementById('exportCsv');
+        const autocorrectNamesButton = document.getElementById('autocorrectNames');
+        const listeningText = document.getElementById('listeningText');
+        const classSelector = document.getElementById('classSelector');
 
-        const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+        let recognition = null;
+        try {
+            recognition = new SpeechRecognition();
+        } catch (e) {
+            recognition = new webkitSpeechRecognition();
+        }
+
         recognition.continuous = true;
 
         startRecordingButton.addEventListener('click', () => {
             recognition.start();
+            listeningText.style.display = 'block';
         });
+
+        recognition.onend = () => {
+            listeningText.style.display = 'none';
+        };
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
@@ -196,7 +262,6 @@
             const csvContentString = csvContent.map(row => row.join(',')).join('\n');
             const blob = new Blob([csvContentString], { type: 'text/csv;charset=utf-8;' });
 
-            // Create a download link
             const link = document.createElement('a');
             if (link.download !== undefined) {
                 const url = URL.createObjectURL(blob);
@@ -210,6 +275,54 @@
                 alert('Your browser does not support the download feature. Please try using a different browser.');
             }
         }
+
+        autocorrectNamesButton.addEventListener('click', () => {
+            autocorrectNames(classSelector.value);
+        });
+
+        function autocorrectNames(selectedClass) {
+            const csvPath = `${selectedClass}.csv`;
+
+            fetch(csvPath)
+                .then(response => response.text())
+                .then(csvContent => {
+                    const csvNames = csvContent.split('\n').map(name => name.trim());
+
+                    tableBody.querySelectorAll('tr').forEach(row => {
+                        const nameCell = row.children[0];
+                        const currentName = nameCell.textContent.trim();
+
+                        const matchingName = csvNames.find(csvName =>
+                            fuzzyNameMatch(currentName, csvName)
+                        );
+
+                        if (matchingName) {
+                            nameCell.textContent = matchingName;
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching names CSV:', error));
+        }
+
+        function fuzzyNameMatch(name1, name2) {
+            const cleanName1 = name1.replace(/\s/g, ''); // Remove whitespace from name1
+            const cleanName2 = name2.replace(/\s/g, ''); // Remove whitespace from name2
+
+            const minLength = Math.min(cleanName1.length, cleanName2.length);
+
+            let matchCount = 0;
+
+            for (let i = 0; i < minLength; i++) {
+                if (cleanName1[i].toLowerCase() === cleanName2[i].toLowerCase()) {
+                    matchCount++;
+                }
+}
+
+            const matchPercentage = (matchCount / minLength) * 100;
+
+            return matchPercentage > 70; // Adjust the percentage threshold based on your requirements
+        }
     </script>
 </body>
 </html>
+   
