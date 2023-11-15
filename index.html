@@ -328,37 +328,38 @@
         }
 
         exportCsvButton.addEventListener('click', () => {
-            exportToCsv('marks.csv');
-        });
+  exportToCsv('marks.csv');
+});
 
-        function exportToCsv(filename) {
-            const csvContent = [];
-            const rows = tableBody.querySelectorAll('tr');
+function exportToCsv(filename) {
+  const csvContent = [];
+  const rows = tableBody.querySelectorAll('tr');
 
-            rows.forEach((row) => {
-                const rowData = [];
-                row.querySelectorAll('td').forEach((cell) => {
-                    rowData.push(cell.textContent);
-                });
-                csvContent.push(rowData);
-            });
+  rows.forEach((row) => {
+    const rowData = [];
+    // Select only the first two columns ("name" and "marks")
+    row.querySelectorAll('td:not(:last-child)').forEach((cell) => {
+      rowData.push(cell.textContent);
+    });
+    csvContent.push(rowData);
+  });
 
-            const csvContentString = csvContent.map(row => row.join(',')).join('\n');
-            const blob = new Blob([csvContentString], { type: 'text/csv;charset=utf-8;' });
+  const csvContentString = csvContent.map(row => row.join(',')).join('\n');
+  const blob = new Blob([csvContentString], { type: 'text/csv;charset=utf-8;' });
 
-            const link = document.createElement('a');
-            if (link.download !== undefined) {
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', filename);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else {
-                alert('Your browser does not support the download feature. Please try using a different browser.');
-            }
-        }
+  const link = document.createElement('a');
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } else {
+    alert('Your browser does not support the download feature. Please try using a different browser.');
+  }
+}
 
         autocorrectNamesButton.addEventListener('click', () => {
             const threshold = parseFloat(prompt('Enter the matching threshold (default is 70):')) || 70;
