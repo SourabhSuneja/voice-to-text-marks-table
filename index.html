@@ -196,6 +196,7 @@
         const classSelector = document.getElementById('classSelector');
         const fetchNamesButton = document.getElementById('fetchNames');
         const guidingParagraph = document.getElementById('guidingParagraph');
+        var namesFetched = false;
 
         let recognition = null;
         try {
@@ -222,18 +223,31 @@
         };
 
         function processSpeech(transcript) {
-            const inputArray = transcript.split(' ');
+  // Check if namesFetched global variable is set to true
+  if (namesFetched) {
+    const marksStartIndex = transcript.lastIndexOf(' ') + 1; // Find the last space to get the start of marks
+    const marksTranscript = transcript.substring(marksStartIndex);
+    const marks = wordToNumber(marksTranscript.trim());
 
-            const name = capitalizeFirstLetterEachWord(inputArray.slice(0, -1).join(' '));
-            const marks = wordToNumber(parseInt(inputArray[inputArray.length - 1]));
+    if (!isNaN(marks)) {
+      // Pass null for the name when namesFetched is true
+      updateTable(null, marks);
+    } else {
+      alert("Invalid input: Couldn't recognize marks");
+    }
+  } else {
+    // Normal processing when namesFetched is not true
+    const inputArray = transcript.split(' ');
+    const name = capitalizeFirstLetterEachWord(inputArray.slice(0, -1).join(' '));
+    const marks = wordToNumber(parseInt(inputArray[inputArray.length - 1]));
 
-            if (!isNaN(marks)) {
-                updateTable(name, marks);
-                
-            } else {
-                alert('Invalid input. Please speak in the format: "Full Name Marks" (e.g., "John Doe 18")');
-            }
-        }
+    if (!isNaN(marks)) {
+      updateTable(name, marks);
+    } else {
+      alert("Invalid input: Couldn't recognize");
+    }
+  }
+}
 
         function capitalizeFirstLetterEachWord(str) {
             return str.replace(/\b\w/g, match => match.toUpperCase());
@@ -420,6 +434,8 @@ fetchNamesButton.addEventListener('click', () => {
       const names = csvData.split('\n');
       // clear table body first
       tableBody.innerHTML = '';
+      // set namesFetched to true
+      namesFetched = true;
       // Iterate through names and append rows to the tableBody
       names.forEach(name => {
         // Create a new table row
