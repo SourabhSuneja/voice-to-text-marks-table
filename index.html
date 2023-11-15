@@ -203,6 +203,7 @@
         feather.replace();
 
         const startRecordingButton = document.getElementById('startRecording');
+        const table = document.getElementById('marksTable');
         const tableBody = document.getElementById('tableBody');
         const exportCsvButton = document.getElementById('exportCsv');
         const autocorrectNamesButton = document.getElementById('autocorrectNames');
@@ -335,14 +336,26 @@
 
 function exportToCsv(filename) {
   const csvContent = [];
-  const rows = tableBody.querySelectorAll('tr');
+  const headerRow = table.querySelector('thead tr');
+  const headerData = [];
+  
+  // Select only the first two header columns
+  headerRow.querySelectorAll('th:not(:last-child)').forEach((headerCell) => {
+    headerData.push(headerCell.textContent);
+  });
+  
+  csvContent.push(headerData);
+
+  const rows = table.querySelectorAll('tbody tr');
 
   rows.forEach((row) => {
     const rowData = [];
+    
     // Select only the first two columns ("name" and "marks")
     row.querySelectorAll('td:not(:last-child)').forEach((cell) => {
       rowData.push(cell.textContent);
     });
+    
     csvContent.push(rowData);
   });
 
