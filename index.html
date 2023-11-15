@@ -143,7 +143,7 @@
     <div>
         <h1>Voice2Text Marks Input</h1>
         <h2>Powered by Sourabh Suneja</h2>
-        <p>Speak up the marks in the format: "Name Marks" (e.g., "Aman 18", "Krishna 16") and I'll type out in the table</p>
+        <p id="guidingParagraph">Speak up the marks in the format: "Name Marks" (e.g., "Aman Sharma 18", "Krishna Gupta 16") and I'll type out in the table</p>
     </div>
 
     <label for="classSelector"><strong>Select Class:</strong></label>
@@ -181,6 +181,7 @@
         const listeningText = document.getElementById('listeningText');
         const classSelector = document.getElementById('classSelector');
         const fetchNamesButton = document.getElementById('fetchNames');
+        const guidingParagraph = document.getElementById('guidingParagraph');
 
         let recognition = null;
         try {
@@ -429,6 +430,7 @@ fetchNamesButton.addEventListener('click', () => {
         // Append the row to the tableBody
         tableBody.appendChild(row);
       });
+      guidingParagraph.innerText = 'Now that the names have already been fetched, you can serially speak up the marks of these students, and I'll fill the marks column (e.g. "87", "45"..)';
     })
     .catch(error => console.error('Error fetching CSV file:', error));
 });
