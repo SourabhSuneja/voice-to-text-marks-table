@@ -180,6 +180,7 @@
         const autocorrectNamesButton = document.getElementById('autocorrectNames');
         const listeningText = document.getElementById('listeningText');
         const classSelector = document.getElementById('classSelector');
+        const fetchNamesButton = document.getElementById('fetchNames');
 
         let recognition = null;
         try {
@@ -391,6 +392,46 @@ function wordToNumber(word) {
 
   return undefined; // Return undefined for words not in the range of one to a hundred
 }
+
+fetchNamesButton.addEventListener('click', () => {
+  // Get the URL from the classSelector and append ".csv" extension
+  const csvUrl = classSelector.value + '.csv';
+
+  // Fetch the CSV file
+  fetch(csvUrl)
+    .then(response => response.text())
+    .then(csvData => {
+      // Split CSV data into an array of names
+      const names = csvData.split('\n');
+
+      // Iterate through names and append rows to the tableBody
+      names.forEach(name => {
+        // Create a new table row
+        const row = document.createElement('tr');
+
+        // Add the name to the first column
+        const nameCell = document.createElement('td');
+        nameCell.textContent = name.trim(); // trim to remove leading/trailing spaces
+        row.appendChild(nameCell);
+
+        // Add a blank second column
+        const blankCell = document.createElement('td');
+        row.appendChild(blankCell);
+
+        // Add an "edit" button to the third column
+        const editButtonCell = document.createElement('td');
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.addEventListener('click', () => editEntry(row));
+        editButtonCell.appendChild(editButton);
+        row.appendChild(editButtonCell);
+
+        // Append the row to the tableBody
+        tableBody.appendChild(row);
+      });
+    })
+    .catch(error => console.error('Error fetching CSV file:', error));
+});
 
     </script>
 </body>
