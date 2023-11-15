@@ -418,7 +418,8 @@ fetchNamesButton.addEventListener('click', () => {
     .then(csvData => {
       // Split CSV data into an array of names
       const names = csvData.split('\n');
-
+      // clear table body first
+      tableBody.innerHTML = '';
       // Iterate through names and append rows to the tableBody
       names.forEach(name => {
         // Create a new table row
