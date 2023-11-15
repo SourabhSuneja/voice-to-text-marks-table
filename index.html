@@ -255,32 +255,52 @@
         }
 
         function updateTable(name, marks) {
-            const row = document.createElement('tr');
-            const nameCell = document.createElement('td');
-            const marksCell = document.createElement('td');
-            const editButtonCell = document.createElement('td');
+  const row = document.createElement('tr');
+  const nameCell = document.createElement('td');
+  const marksCell = document.createElement('td');
+  const editButtonCell = document.createElement('td');
 
-            nameCell.textContent = name;
-            marksCell.textContent = marks;
+  // Check if namesFetched global variable is set to true
+  if (namesFetched) {
+    // Find the first non-empty cell index in the marks column
+    const marksColumnCells = tableBody.querySelectorAll('td:nth-child(2)');
+    const nextCellToBeFilledIndex = marksColumnCells[nextCellToBeFilled - 1];
 
-            const editButton = document.createElement('button');
-            editButton.textContent = 'Edit';
-            editButton.addEventListener('click', () => editEntry(row));
+    if (nextCellToBeFilledIndex && nextCellToBeFilledIndex.textContent.trim() === '') {
+      // Insert marks in the specified cell in the marks column
+      nextCellToBeFilledIndex.textContent = marks;
+      // Increment nextCellToBeFilled for the next entry
+      nextCellToBeFilled++;
+    } else {
+      // If the specified cell is already populated or not found, append a new row
+      marksCell.textContent = marks;
+      row.appendChild(nameCell);
+      row.appendChild(marksCell);
+      row.appendChild(editButtonCell);
+      tableBody.appendChild(row);
+    }
+  } else {
+    // Normal processing when namesFetched is false
+    nameCell.textContent = name;
+    marksCell.textContent = marks;
 
-            editButtonCell.appendChild(editButton);
+    const editButton = document.createElement('button');
+    editButton.textContent = 'Edit';
+    editButton.addEventListener('click', () => editEntry(row));
 
-            row.appendChild(nameCell);
-            row.appendChild(marksCell);
-            row.appendChild(editButtonCell);
+    editButtonCell.appendChild(editButton);
 
-            tableBody.appendChild(row);
+    row.appendChild(nameCell);
+    row.appendChild(marksCell);
+    row.appendChild(editButtonCell);
+    tableBody.appendChild(row);
+  }
 
-// Programmatically click the record button after each successful row entry
-    setTimeout(() => {
-        startRecordingButton.dispatchEvent(new Event('click'));
-    }, 0);
-
-        }
+  // Programmatically click the record button after each successful row entry
+  setTimeout(() => {
+    startRecordingButton.dispatchEvent(new Event('click'));
+  }, 0);
+}
 
         function editEntry(row) {
             const nameCell = row.children[0];
