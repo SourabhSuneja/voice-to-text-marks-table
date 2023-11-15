@@ -197,6 +197,7 @@
         const fetchNamesButton = document.getElementById('fetchNames');
         const guidingParagraph = document.getElementById('guidingParagraph');
         var namesFetched = false;
+        var nextCellToBeFilled = null;
 
         let recognition = null;
         try {
@@ -462,6 +463,7 @@ fetchNamesButton.addEventListener('click', () => {
         tableBody.appendChild(row);
       });
       guidingParagraph.innerText = 'Now that the names have already been fetched, you can serially speak up the marks of these students, and I will fill the marks column. (e.g. "87", "45"..)';
+      nextCellToBeFilled = 1;
     })
     .catch(error => console.error('Error fetching CSV file:', error));
 });
