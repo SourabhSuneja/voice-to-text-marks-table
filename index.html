@@ -182,8 +182,8 @@
     <table id="marksTable">
     <thead>
         <tr>
-            <th><span contenteditable="true">Name</span> <i class="icon-pencil edit-icon"></i></th>
-            <th><span contenteditable="true">Marks</span> <i class="icon-pencil edit-icon"></i></th>
+            <th><span contenteditable="true">Name</span> <i data-feather="edit" class="feather edit-icon"></i></th>
+            <th><span contenteditable="true">Marks</span> <i data-feather="edit" class="feather edit-icon"></i></th>
             <th>Edit</th>
         </tr>
     </thead>
@@ -502,29 +502,32 @@ fetchNamesButton.addEventListener('click', () => {
 });
 
 // Add event listeners to pencil icons for editing
-const editIcons = document.querySelectorAll('.edit-icon');
-editIcons.forEach(icon => {
-    icon.addEventListener('click', function () {
-        const columnHeader = this.parentElement.querySelector('span[contenteditable="true"]');
-        columnHeader.focus();
+    const editIcons = document.querySelectorAll('.edit-icon');
+    editIcons.forEach(icon => {
+        icon.addEventListener('click', function () {
+            const columnHeader = this.parentElement.querySelector('span[contenteditable="true"]');
+            columnHeader.focus();
+        });
     });
-});
 
-// Add event listener to update the table when a column name is edited
-const columnNames = document.querySelectorAll('th span[contenteditable="true"]');
-columnNames.forEach(columnName => {
-    columnName.addEventListener('input', function () {
-        updateColumnHeader(this);
+    // Add event listener to update the table when a column name is edited
+    const columnNames = document.querySelectorAll('th span[contenteditable="true"]');
+    columnNames.forEach(columnName => {
+        columnName.addEventListener('input', function () {
+            updateColumnHeader(this);
+        });
     });
-});
 
-// Function to update the table header with the edited column name
-function updateColumnHeader(columnHeader) {
-    columnHeader.closest('th').textContent = columnHeader.textContent + ' ' +
-        '<i class="icon-pencil edit-icon"></i>';
-    // Refresh Feather Icons after updating the DOM
+    // Function to update the table header with the edited column name
+    function updateColumnHeader(columnHeader) {
+        columnHeader.closest('th').textContent = columnHeader.textContent + ' ' +
+            '<i data-feather="edit" class="feather edit-icon"></i>';
+        // Refresh Feather Icons after updating the DOM
+        feather.replace();
+    }
+
+    // Refresh Feather Icons after initial loading
     feather.replace();
-}
 
     </script>
 </body>
