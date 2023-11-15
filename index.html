@@ -364,7 +364,7 @@ function exportToCsv(filename) {
 }
 
         autocorrectNamesButton.addEventListener('click', () => {
-            const threshold = parseFloat(prompt('Enter the matching threshold (default is 70):')) || 70;
+            const threshold = parseFloat(prompt('Enter the matching threshold (default is 85):')) || 85;
             autocorrectNames(classSelector.value, threshold);
         });
 
