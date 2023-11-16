@@ -336,12 +336,18 @@
 
 function exportToCsv(filename) {
   const csvContent = [];
+  const table = document.getElementById('yourTableId'); // Replace 'yourTableId' with the actual ID of your table
   const headerRow = table.querySelector('thead tr');
   const headerData = [];
   
-  // Select only the first two header columns
-  headerRow.querySelectorAll('th:not(:last-child)').forEach((headerCell) => {
-    headerData.push(headerCell.textContent);
+  // Select all header columns and extract text content from span elements if present
+  headerRow.querySelectorAll('th').forEach((headerCell) => {
+    const span = headerCell.querySelector('span');
+    if (span) {
+      headerData.push(span.textContent);
+    } else {
+      headerData.push(headerCell.textContent);
+    }
   });
 
   // Join the header data with a comma and add to the CSV content
@@ -352,8 +358,8 @@ function exportToCsv(filename) {
   rows.forEach((row) => {
     const rowData = [];
     
-    // Select only the first two columns ("name" and "marks")
-    row.querySelectorAll('td:not(:last-child)').forEach((cell) => {
+    // Select all columns
+    row.querySelectorAll('td').forEach((cell) => {
       rowData.push(cell.textContent);
     });
     
