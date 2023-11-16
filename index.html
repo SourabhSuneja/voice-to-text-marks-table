@@ -336,6 +336,7 @@
 
 function exportToCsv(filename) {
   const csvContent = [];
+  const table = document.getElementById('yourTableId'); // Replace 'yourTableId' with the actual ID of your table
   const headerRow = table.querySelector('thead tr');
   const headerData = [];
   
@@ -357,8 +358,8 @@ function exportToCsv(filename) {
   rows.forEach((row) => {
     const rowData = [];
     
-    // Select all columns
-    row.querySelectorAll('td').forEach((cell) => {
+    // Select all columns except the last one
+    row.querySelectorAll('td:not(:last-child)').forEach((cell) => {
       rowData.push(cell.textContent);
     });
     
