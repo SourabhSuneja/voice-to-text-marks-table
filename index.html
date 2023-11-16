@@ -336,6 +336,7 @@
 
 function exportToCsv(filename) {
   const csvContent = [];
+  const table = document.getElementById('yourTableId'); // Replace 'yourTableId' with the actual ID of your table
   const headerRow = table.querySelector('thead tr');
   const headerData = [];
   
@@ -343,8 +344,9 @@ function exportToCsv(filename) {
   headerRow.querySelectorAll('th:not(:last-child)').forEach((headerCell) => {
     headerData.push(headerCell.textContent);
   });
-  
-  csvContent.push(headerData);
+
+  // Join the header data with a comma and add to the CSV content
+  csvContent.push(headerData.join(','));
 
   const rows = table.querySelectorAll('tbody tr');
 
@@ -356,10 +358,10 @@ function exportToCsv(filename) {
       rowData.push(cell.textContent);
     });
     
-    csvContent.push(rowData);
+    csvContent.push(rowData.join(','));
   });
 
-  const csvContentString = csvContent.map(row => row.join(',')).join('\n');
+  const csvContentString = csvContent.join('\n');
   const blob = new Blob([csvContentString], { type: 'text/csv;charset=utf-8;' });
 
   const link = document.createElement('a');
