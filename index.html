@@ -339,8 +339,8 @@ function exportToCsv(filename) {
   const headerRow = table.querySelector('thead tr');
   const headerData = [];
   
-  // Select all header columns and extract text content from span elements if present
-  headerRow.querySelectorAll('th').forEach((headerCell) => {
+  // Select all header columns except the last one and extract text content from span elements if present
+  headerRow.querySelectorAll('th:not(:last-child)').forEach((headerCell) => {
     const span = headerCell.querySelector('span');
     if (span) {
       headerData.push(span.textContent);
